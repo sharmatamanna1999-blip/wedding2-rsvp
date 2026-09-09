@@ -1,0 +1,119 @@
+<section class="rsvp" id="rsvp">
+<div class="wrap">
+<div class="kicker">We really want you there</div>
+<div class="title">RSVP To The Love Story</div>
+<div class="form">
+<form id="weddingRsvpForm" onsubmit="submitRsvp(event)">
+<input type="text" id="rsvpName" required placeholder="Your name *">
+<select id="rsvpAttending" required onchange="handleAttendingChange(this.value)">
+  <option value="">Are you joining us? *</option>
+  <option value="Yes">Yes! Can't wait 💃</option>
+  <option value="No">Sadly, I can't make it 😭</option>
+</select>
+
+<div id="guestsWrapper">
+<select id="rsvpGuests">
+  <option value="">Number of guests (including you)</option>
+  <option value="1" selected>1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5+">5+</option>
+</select>
+<input type="text" id="rsvpAccompanying" placeholder="Names of accompanying guests (optional)">
+</div>
+
+<textarea id="rsvpMessage" rows="3" placeholder="A message or blessing for Tamanna & Vicky (optional)"></textarea>
+<button type="submit" id="rsvpSubmitBtn">YES, I'LL BE THERE ✨</button>
+<p id="rsvpLoader" style="display:none;text-align:center;font-weight:700;margin-top:10px;color:#fff;">Saving your response... ⏳</p>
+</form>
+<p id="thanks" style="display:none;text-align:center;font-weight:700;margin-top:14px;font-size:16px;line-height:1.6;"></p>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="footer-names">Tamanna & Vicky</div>
+<div class="footer-tag">#VickykiTamanna</div>
+<p>21 November 2026</p>
+</footer>
+
+<script>
+// Countdown Timer
+const wedding = new Date("2026-11-21T18:00:00+05:30").getTime();
+function tick(){
+ const now=Date.now(), d=Math.max(0,wedding-now);
+ document.getElementById("days").textContent=Math.floor(d/86400000);
+ document.getElementById("hours").textContent=Math.floor(d%86400000/3600000);
+ document.getElementById("mins").textContent=Math.floor(d%3600000/60000);
+ document.getElementById("secs").textContent=Math.floor(d%60000/1000);
+}
+tick();setInterval(tick,1000);
+
+// ========================================================
+// ⬇️ PASTE YOUR COPIED GOOGLE APPS SCRIPT URL RIGHT HERE ⬇️
+// ========================================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw719VOujy51St2c1pW8JF4G903_QHW1FuMU4pIpyWEq5D_W4rYixZjs4ESgDWsxQZldw/exec";
+
+function handleAttendingChange(val) {
+  const guestsWrapper = document.getElementById("guestsWrapper");
+  const submitBtn = document.getElementById("rsvpSubmitBtn");
+  if (val === "No") {
+    guestsWrapper.style.display = "none";
+    submitBtn.textContent = "SEND WISHES & LOVE ❤️";
+  } else {
+    guestsWrapper.style.display = "block";
+    submitBtn.textContent = "YES, I'LL BE THERE ✨";
+  }
+}
+
+async function submitRsvp(e) {
+  e.preventDefault();
+  const btn = document.getElementById("rsvpSubmitBtn");
+  const loader = document.getElementById("rsvpLoader");
+  const thanks = document.getElementById("thanks");
+  const form = document.getElementById("weddingRsvpForm");
+
+  const name = document.getElementById("rsvpName").value;
+  const attending = document.getElementById("rsvpAttending").value;
+  const guests = attending === "Yes" ? (document.getElementById("rsvpGuests").value || "1") : "0";
+  const accompanying = attending === "Yes" ? document.getElementById("rsvpAccompanying").value : "";
+  const message = document.getElementById("rsvpMessage").value;
+
+  const payload = {
+    name: name,
+    attending: attending,
+    guests: guests,
+    events: "Wedding",
+    accompanying: accompanying,
+    message: message
+  };
+
+  btn.disabled = true;
+  loader.style.display = "block";
+
+  try {
+    if (SCRIPT_URL && SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbw719VOujy51St2c1pW8JF4G903_QHW1FuMU4pIpyWEq5D_W4rYixZjs4ESgDWsxQZldw/exec") {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+  } catch (err) {
+    console.error("Submission error:", err);
+  } finally {
+    loader.style.display = "none";
+    form.style.display = "none";
+    if (attending === "Yes") {
+      thanks.innerHTML = "🎉 Yay " + name + "! We can't wait to celebrate our big day with you! ❤️<br><span style='font-size:13px;opacity:0.9;'>Venue & timings will be shared soon.</span>";
+    } else {
+      thanks.innerHTML = "❤️ We'll definitely miss you, " + name + "! Thank you for letting us know and sending your warm wishes.";
+    }
+    thanks.style.display = "block";
+  }
+}
+</script>
+</body>
+</html>
